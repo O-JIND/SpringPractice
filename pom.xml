@@ -73,10 +73,11 @@
 			<version>1.18.38</version>
 			<optional>true</optional>
 		</dependency>
+		<!--@Test사용시 scope 태그 삭제 요망-->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
+			<!--<scope>test</scope>-->
 		</dependency>
 	</dependencies>
 
