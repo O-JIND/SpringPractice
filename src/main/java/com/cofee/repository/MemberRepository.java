@@ -7,5 +7,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 //JpaRepository<entity_name,Base_type>
 public interface MemberRepository extends JpaRepository<Member,Long> {
 
+//email 정보를 이용하여 해당 회원 존재유무 확인
+    //query Method // email로 회원을 체크
+    Member findByEmail(String email);
+
 
 }

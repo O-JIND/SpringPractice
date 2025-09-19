@@ -8,6 +8,7 @@ class CofeeApplicationTests {
 
 	@Test
 	void contextLoads() {
+
 	}
 
 }
