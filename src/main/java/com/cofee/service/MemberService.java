@@ -14,8 +14,6 @@ public class MemberService {
     private final MemberRepository memberRepository;
 
     public Member findByEmail(String email) {
-
-
         return memberRepository.findByEmail(email);
     }
 
@@ -23,6 +21,6 @@ public class MemberService {
         //사용자 역할과 등록 역할은 in here
         bean.setRole(Role.USER);
         bean.setRegdate(LocalDate.now());
-        memberRepository.save(bean);//주의> Repository에서 insert는 save;
+        memberRepository.save(bean);//주의> Repository 에서 insert는 save;
     }
 }

@@ -33,10 +33,12 @@ public class Member {
     //정규 표현식 [asdf] 中 1
     @NotBlank(message = "Password is necessary")
     @Size(min=8,message = "Password have to over 8 char")
-    @Pattern(regexp = ".*[A-Z].*", message = "비밀 번호는 대문자 1개 이상을 포함해야 합니다.")
-    @Pattern(regexp = ".*[!@#$%].*", message = "비밀 번호는 특수 문자 '!@#$%' 중 하나 이상을 포함해야 합니다.")
+    @Size(max=255,message = "Password is Maximum 255 char")
+    @Pattern(regexp = ".*[A-Z].*", message = "Password contain at least one capital char .")
+    @Pattern(regexp = ".*[!@#$%].*", message = "Password contain at least one of '!@#$%' ")
     private String password;
 
+    @NotBlank(message = "address is necessary")
     private String address;
 
     @Enumerated(EnumType.STRING)
