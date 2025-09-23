@@ -57,9 +57,10 @@ public class MemberController {
 
 
     }
+
     @PostMapping("/login")
     public ResponseEntity<Map<String, Object>> login(@RequestBody Member bean){
-        System.out.println("로그인 요청 input");
+
         System.out.println(bean);
 
 
@@ -85,9 +86,5 @@ public class MemberController {
         }
 
     }
-    @PostMapping("/logout")
-    public ResponseEntity<String> logout(){
-        //Add later------------------------------------------------
-        return ResponseEntity.ok("logout success");
-    }
+
 }
