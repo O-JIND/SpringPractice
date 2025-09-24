@@ -9,4 +9,5 @@ public interface ProductsRepository extends JpaRepository<Product, Long> {
 //상품 id를 역순으로 정렬하여 목록을 보여줌.
 
     List<Product> findProductByOrderByIdDesc();
+
 }

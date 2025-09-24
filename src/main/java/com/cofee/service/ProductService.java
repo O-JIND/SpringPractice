@@ -14,4 +14,15 @@ public class ProductService {
     public List<Product> getProductList() {
         return this.productsRepository.findProductByOrderByIdDesc();
     }
+
+
+    public boolean deleteProduct(Long id) {
+        if(productsRepository.existsById(id)){//in CrudRepository
+            this.productsRepository.deleteById(id);
+            return true;
+        }else{
+            return false;
+        }
+
+    }
 }
