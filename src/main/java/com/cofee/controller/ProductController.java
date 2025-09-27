@@ -141,5 +141,15 @@ public class ProductController {
             return base64image;
         }
     }
+    @GetMapping("/specific/{id}")
+    public ResponseEntity<Product> specificMatch(@PathVariable  Long id) {
+       Product product = this.productService.getProductById(id);
+
+        if(product==null){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }else{
+            return ResponseEntity.ok(product);
+        }
+    }
 }
 

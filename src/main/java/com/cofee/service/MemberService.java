@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor // final 키워드 또는 @NotNull 필드가 들어있는 식별자에 생성자를 통해 값을 외부에서 주입해준다.
@@ -22,5 +23,10 @@ public class MemberService {
         bean.setRole(Role.USER);
         bean.setRegdate(LocalDate.now());
         memberRepository.save(bean);//주의> Repository 에서 insert는 save;
+    }
+
+
+    public Optional<Member> findMemberById(Long memberId) {
+        return this.memberRepository.findById(memberId);
     }
 }
