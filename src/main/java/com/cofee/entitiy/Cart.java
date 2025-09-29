@@ -3,9 +3,10 @@ package com.cofee.entitiy;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 
-@Getter @Setter @ToString
+import java.util.List;
+
+@Getter @Setter
 @Entity
 @Table(name="carts")
 public class Cart {
@@ -19,6 +20,7 @@ public class Cart {
     @JoinColumn(name="member_id")
     private Member member;
 
-
+    @OneToMany(mappedBy = "cart",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    private List<CartProduct> cartProducts;
 
 }

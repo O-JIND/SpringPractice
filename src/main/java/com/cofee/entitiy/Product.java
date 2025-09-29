@@ -48,6 +48,4 @@ public class Product { //entity coding 시 database 제약조건도 고려
 
     private LocalDate input_date;
 
-
-
 }

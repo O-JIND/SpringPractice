@@ -2,6 +2,7 @@ package com.cofee.controller;
 
 
 import com.cofee.dto.CartProductDto;
+import com.cofee.dto.CartProductResponseDto;
 import com.cofee.entitiy.Cart;
 import com.cofee.entitiy.CartProduct;
 import com.cofee.entitiy.Member;
@@ -14,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 /*
                             test 시나리오
@@ -38,12 +41,14 @@ public class CartController {
     private final ProductService productService;
     private final CartService cartService;
     private final CartProductService cartproductService;
-
+    private final ProductService CartProductRepository;
     @PostMapping("/insert")
     public ResponseEntity<String> addToCart(@RequestBody CartProductDto dto){
         //member,product의 유효성 검사
         Optional<Member> memberOptional = memberService.findMemberById(dto.getMemberId());
         Optional<Product> productOptional = productService.findproductById(dto.getProductId());
+
+        // 중복된 Product 확인 및 등록 불가 RespondEntity 기능
 
         //member,product의 객체 정보 가져오기
         if(memberOptional.isEmpty()||productOptional.isEmpty()){//
@@ -55,6 +60,7 @@ public class CartController {
         if(product.getStock()<dto.getQuantity()){
             return ResponseEntity.badRequest().body("재고 수량이 부족합니다.");
         }
+
 
 
         //Cart 조회 및 신규 작성
@@ -74,5 +80,66 @@ public class CartController {
         return ResponseEntity.ok("요청하신 상품이 장바구니에 추가되었습니다.");
     }
 
+//    특정 사용자의 카트 상품을 조회한다.
+    @GetMapping("/list/{member_id}")
+    public ResponseEntity<List<CartProductResponseDto>> getCartProducts(@PathVariable Long member_id){
+        Optional<Member> memberOption = memberService.findMemberById(member_id);
+
+        if(memberOption.isEmpty()){
+            return ResponseEntity.badRequest().build();
+        }
+
+        Member member = memberOption.get();
+        Cart cart = cartService.findByMember(member);
+
+        if(cart == null){
+            cart = new Cart();
+        }
+        //과거에 내가 장바구니에 추가한 내역을 의미하는 컬렉션
+        List<CartProductResponseDto> cartProducts = new ArrayList<>();
+        for(CartProduct cp : cart.getCartProducts()){
+            cartProducts.add(new CartProductResponseDto(cp));
+        }
+
+        System.out.println("카트 상품 개수"+cartProducts.size());
+        return ResponseEntity.ok(cartProducts);
+    }
+    @PatchMapping("/edit/{cartProductId}")
+    public ResponseEntity<String> quantitySet(
+            @PathVariable Long cartProductId,
+            @RequestParam(required = false) Integer quantity){
+        String message=null;
+        if(quantity==null){
+            message = "Cart product is At least over one product";
+            return ResponseEntity.badRequest().body(message);
+        }
+        Optional<CartProduct> cartProductOptional = cartService.findCartProductById(cartProductId);
+        CartProduct cartProduct = cartProductOptional.get();
+        cartProduct.setQuantity(quantity);//기존 내용 덮어쓰기
+
+        cartproductService.saveCP(cartProduct);
+
+        message="Update Complete";
+        return ResponseEntity.ok(message);
+
+    }
+
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<String> deleteCartProduct(@PathVariable Long id){
+        System.out.println(id+"---------------------------------------------------------");
+        try{
+            boolean isDeleted = cartService.deleteCartProductById(id);
+            if(isDeleted){
+                return ResponseEntity.ok().body("Delete Complete");
+            }else {
+                return ResponseEntity.badRequest().body("Delete Failed");
+            }
+
+        }catch (Exception e) {
+            System.out.println(e.getMessage());
+            return ResponseEntity.internalServerError().body("Error occurred : " + e.getMessage());
+        }
+    }
 
 }
