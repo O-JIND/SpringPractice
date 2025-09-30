@@ -41,7 +41,8 @@ public class CartController {
     private final ProductService productService;
     private final CartService cartService;
     private final CartProductService cartproductService;
-    private final ProductService CartProductRepository;
+
+
     @PostMapping("/insert")
     public ResponseEntity<String> addToCart(@RequestBody CartProductDto dto){
         //member,product의 유효성 검사
@@ -61,8 +62,6 @@ public class CartController {
             return ResponseEntity.badRequest().body("재고 수량이 부족합니다.");
         }
 
-
-
         //Cart 조회 및 신규 작성
         Cart cart = cartService.findByMember(member);
         if(cart == null){
@@ -70,12 +69,27 @@ public class CartController {
             newcart.setMember(member);//고객이 카트를 집어온 행위와 유사
             cart =cartService.saveCart(newcart);//database 에 저장
         }
-        //chosen product 를 Cart에 카트 상품 담기
-        CartProduct cp = new CartProduct();
-        cp.setCart(cart);
-        cp.setProduct(product);
-        cp.setQuantity(dto.getQuantity());
-        cartproductService.saveCP(cp);
+
+        CartProduct existingCartProduct = null;
+        for (CartProduct cp : cart.getCartProducts()) {
+            // 주의) Long 타입은 참조 자료형이르로 == 대신 equals() 메소드를 사용해야 합니다.
+            if (cp.getProduct().getId().equals(product.getId())) {
+                existingCartProduct = cp;
+                break;
+            }
+        }
+
+        if (existingCartProduct != null) { // 기존 상품이면 수량 누적
+            existingCartProduct.setQuantity(existingCartProduct.getQuantity() + dto.getQuantity());
+            cartproductService.saveCartProduct(existingCartProduct);
+
+        } else { // 새로운 상품이면 새로 추가
+            CartProduct cp = new CartProduct();
+            cp.setCart(cart);
+            cp.setProduct(product);
+            cp.setQuantity(dto.getQuantity());
+            cartproductService.saveCartProduct(cp);
+        }
         //재고 수량은 아직 차감시키지 않는다. 차감은 결제 당시..
         return ResponseEntity.ok("요청하신 상품이 장바구니에 추가되었습니다.");
     }

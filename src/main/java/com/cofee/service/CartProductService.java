@@ -14,4 +14,8 @@ private final CartProductRepository cartProductRepository;
     public CartProduct saveCP(CartProduct cp) {
         return  cartProductRepository.save(cp);
     }
+
+    public CartProduct saveCartProduct(CartProduct existingCartProduct) {
+        return cartProductRepository.save(existingCartProduct);
+    }
 }
