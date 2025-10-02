@@ -27,66 +27,66 @@ public class ProductController {
     private ProductService productService;
 
     @GetMapping("/list")
-    public List<Product> product(){
+    public List<Product> product() {
         return this.productService.getProductList();
     }
 
-   @GetMapping("/Update/{id}")
-       public ResponseEntity<Product> productById(@PathVariable  Long id){
+    @GetMapping("/Update/{id}")
+    public ResponseEntity<Product> productById(@PathVariable Long id) {
 
         Product product = this.productService.getProductById(id);
-        if(product==null){
+        if (product == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        }else{
+        } else {
             return ResponseEntity.ok(product);
         }
 
-   }
+    }
 
 
     @DeleteMapping("/delete/{id}")//{id} 는 경로 변수; 가변 매개 변수 | 특정 id 삭제 요청
-    public ResponseEntity<String> delete(@PathVariable Long id){
+    public ResponseEntity<String> delete(@PathVariable Long id) {
         //{id} --> Long id, @PathVariable는 가변 매개변수를 메소드에 전달
-        try{
-            boolean idDeleted=this.productService.deleteProduct(id);
-            if(idDeleted){
+        try {
+            boolean idDeleted = this.productService.deleteProduct(id);
+            if (idDeleted) {
                 return ResponseEntity.ok("Successfully Deleted");
-            }else{
-                return ResponseEntity.badRequest().body("Delete Failure "+id+"is not found");
+            } else {
+                return ResponseEntity.badRequest().body("Delete Failure " + id + "is not found");
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.internalServerError().body("Error occurred : " + e.getMessage());
         }
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> getUpdate( @RequestBody Product product) throws FileNotFoundException {
-    //Image's name that saved database and image path
-    String imageFileName = "product_"+System.currentTimeMillis()+".jpg";
+    public ResponseEntity<?> getUpdate(@RequestBody Product product) throws FileNotFoundException {
+        //Image's name that saved database and image path
+        String imageFileName = "product_" + System.currentTimeMillis() + ".jpg";
 
-    //폴더 구분자가 제대로 설정 되어있으면 그대로 사용한다.; 아니면 폴더 구분자 추가
-    String pathName = productImageLocation.endsWith("\\") || productImageLocation.endsWith("/")
-            ? productImageLocation
-            : productImageLocation + File.separator;
+        //폴더 구분자가 제대로 설정 되어있으면 그대로 사용한다.; 아니면 폴더 구분자 추가
+        String pathName = productImageLocation.endsWith("\\") || productImageLocation.endsWith("/")
+                ? productImageLocation
+                : productImageLocation + File.separator;
 
-    File total_File = new File(pathName+imageFileName);
-    //base 64 encoding String
-    String imageData = product.getImage();
-    FileOutputStream fos = new FileOutputStream(total_File);
-    try{
-        // file inform 을 byte 단위로 transform 하여 image를 복사
-        byte[] decodedImage = Base64.getDecoder().decode(imageData.split(",")[1]);
-        fos.write(decodedImage); // byte 파일을 해당 image 경로에 copy
+        File total_File = new File(pathName + imageFileName);
+        //base 64 encoding String
+        String imageData = product.getImage();
+        FileOutputStream fos = new FileOutputStream(total_File);
+        try {
+            // file inform 을 byte 단위로 transform 하여 image를 복사
+            byte[] decodedImage = Base64.getDecoder().decode(imageData.split(",")[1]);
+            fos.write(decodedImage); // byte 파일을 해당 image 경로에 copy
 
-        product.setImage(imageFileName);
-        product.setInput_date(LocalDate.now());
+            product.setImage(imageFileName);
+            product.setInput_date(LocalDate.now());
 
-        this.productService.save(product);
-        return ResponseEntity.ok(Map.of("message","Product insert successfully","image",imageFileName));
+            this.productService.save(product);
+            return ResponseEntity.ok(Map.of("message", "Product insert successfully", "image", imageFileName));
 
-    } catch (Exception e) {
-        return ResponseEntity.status(500).body(Map.of("message",e.getMessage(),"error","error File uploading"));
-    }
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("message", e.getMessage(), "error", "error File uploading"));
+        }
 
     }
 
@@ -94,45 +94,45 @@ public class ProductController {
     public ResponseEntity<?> putUpdate(@PathVariable Long id, @RequestBody Product Newproduct) {
 
         Optional<Product> findProduct = productService.findById(id);
-        if(findProduct.isEmpty()){
+        if (findProduct.isEmpty()) {
             return ResponseEntity.notFound().build();
-        }else{
+        } else {
             Product saveProduct = findProduct.get();
-            try{
+            try {
                 saveProduct.setName(Newproduct.getName());
                 saveProduct.setPrice(Newproduct.getPrice());
                 saveProduct.setCategory(Newproduct.getCategory());
                 saveProduct.setStock(Newproduct.getStock());
                 saveProduct.setDescription(Newproduct.getDescription());
                 //saveProduct.setInput_date(LocalDate.now());
-                if(Newproduct.getImage() !=null&& Newproduct.getImage().startsWith("data:image")) {
+                if (Newproduct.getImage() != null && Newproduct.getImage().startsWith("data:image")) {
                     String imageFileName = saveProductImage(Newproduct.getImage());
                     saveProduct.setImage(imageFileName);
                 }
                 this.productService.save(saveProduct);
-                return ResponseEntity.ok(Map.of("message","Update Complete"));
+                return ResponseEntity.ok(Map.of("message", "Update Complete"));
 
             } catch (Exception e) {
                 return ResponseEntity
                         .status(HttpStatus.INTERNAL_SERVER_ERROR)
                         .body(Map.of(
-                        "message", e.getMessage(),
-                        "error", "error File uploading"
-                ));
+                                "message", e.getMessage(),
+                                "error", "error File uploading"
+                        ));
             }
         }
 
     }
 
-    private String saveProductImage (String base64image) {
-        String imageFileName= "product_"+System.currentTimeMillis() + ".jpg";
+    private String saveProductImage(String base64image) {
+        String imageFileName = "product_" + System.currentTimeMillis() + ".jpg";
         String pathName = productImageLocation.endsWith("\\") || productImageLocation.endsWith("/")
                 ? productImageLocation
                 : productImageLocation + File.separator;
-        File total_File = new File(pathName+imageFileName);
+        File total_File = new File(pathName + imageFileName);
         byte[] decodedImage = Base64.getDecoder().decode(base64image.split(",")[1]);
 
-        try{
+        try {
             FileOutputStream fos = new FileOutputStream(total_File);
             fos.write(decodedImage);
             return imageFileName;
@@ -141,15 +141,22 @@ public class ProductController {
             return base64image;
         }
     }
-    @GetMapping("/specific/{id}")
-    public ResponseEntity<Product> specificMatch(@PathVariable  Long id) {
-       Product product = this.productService.getProductById(id);
 
-        if(product==null){
+    @GetMapping("/specific/{id}")
+    public ResponseEntity<Product> specificMatch(@PathVariable Long id) {
+        Product product = this.productService.getProductById(id);
+
+        if (product == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }else{
+        } else {
             return ResponseEntity.ok(product);
         }
+    }
+
+
+    @GetMapping("")
+    public List<Product> getBigsizeProducts(@RequestParam(required = false) String filter) {
+        return productService.getProductsByFilter(filter);
     }
 }
 

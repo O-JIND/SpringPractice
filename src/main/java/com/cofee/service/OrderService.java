@@ -1,5 +1,6 @@
 package com.cofee.service;
 
+import com.cofee.constant.OrderStatus;
 import com.cofee.entitiy.Order;
 import com.cofee.repository.OrderProductRepository;
 import com.cofee.repository.OrderRepository;
@@ -31,12 +32,27 @@ public class OrderService {
 
     ;
 
-    public List<Order> findAllByOrderByIdDesc() {
-        return orderRepository.findAllByOrderByIdDesc();
+    public List<Order> findAllByOrderByIdDesc(OrderStatus status) {
+        return orderRepository.findByStatusOrderByIdDesc(status);
     }
 
     public void deleteById(Long orderId) {
+
+
         orderProductRepository.deleteById(orderId);
         orderRepository.deleteById(orderId);
+    }
+
+    public int updateOrderStatus(Long orderId, OrderStatus status) {
+        return orderRepository.updateOrderStatus(orderId, status);
+
+    }
+
+    public Optional<Order> findById(Long orderId) {
+        return orderRepository.findById(orderId);
+    }
+
+    public boolean existesById(Long orderId) {
+        return orderRepository.existsById(orderId);
     }
 }

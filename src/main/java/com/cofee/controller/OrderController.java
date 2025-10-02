@@ -1,5 +1,6 @@
 package com.cofee.controller;
 
+import com.cofee.constant.OrderStatus;
 import com.cofee.constant.Role;
 import com.cofee.dto.OrderDto;
 import com.cofee.dto.OrderProductDto;
@@ -98,7 +99,7 @@ public class OrderController {
 
         if (role == Role.ADMIN) {
             System.out.println("관리자");
-            orderList = orderService.findAllByOrderByIdDesc();
+            orderList = orderService.findAllByOrderByIdDesc(OrderStatus.PENDING);
         } else {
             System.out.println("일반인");
             orderList = orderService.findByMemberId(memberId);
@@ -126,10 +127,37 @@ public class OrderController {
 
     @DeleteMapping("/delete/{orderId}")
     public ResponseEntity<?> deleteOrder(@PathVariable Long orderId) {
-        System.out.println("______________________________________________" + orderId + "__________________________________________________");
+
+        if (!orderService.existesById(orderId)) {
+            return ResponseEntity.notFound().build();
+        }
+
+
+        Optional<Order> orderOptional = orderService.findById(orderId);
+        Order order = orderOptional.get();
+        for (OrderProduct op : order.getOrderProducts()) {
+            Product product = op.getProduct();
+            int quantity = op.getQuantity();
+            product.setStock(product.getStock() + quantity);
+            productService.save(product);
+        }
+
         this.orderService.deleteById(orderId);
+
+
         return ResponseEntity.ok("Success");
     }
 
+    @PutMapping("/changeStatus/{orderId}")
+    public ResponseEntity<?> changeStatus(@PathVariable Long orderId, @RequestParam OrderStatus status) {
+        System.out.println("ID : " + orderId + "Status : " + status);
+
+        int affected = -1; // database 에서 반영이 된 행 개수
+        affected = orderService.updateOrderStatus(orderId, status);
+
+
+        String msg = "ID : " + orderId + "Status : " + status;
+        return ResponseEntity.ok(msg);
+    }
 
 }

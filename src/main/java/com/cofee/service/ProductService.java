@@ -12,16 +12,17 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ProductService {
     private final ProductsRepository productsRepository;
+
     public List<Product> getProductList() {
         return this.productsRepository.findProductByOrderByIdDesc();
     }
 
 
     public boolean deleteProduct(Long id) {
-        if(productsRepository.existsById(id)){//in CrudRepository
+        if (productsRepository.existsById(id)) {//in CrudRepository
             this.productsRepository.deleteById(id);
             return true;
-        }else{
+        } else {
             return false;
         }
     }
@@ -40,9 +41,15 @@ public class ProductService {
         return productsRepository.findById(id);
     }
 
-    public Optional<Product> findproductById(Long productId)  {
+    public Optional<Product> findproductById(Long productId) {
         return productsRepository.findById(productId);
     }
 
 
+    public List<Product> getProductsByFilter(String filter) {
+        if (filter != null && !filter.isEmpty()) {
+            return productsRepository.findByImageContaining(filter);
+        }
+        return null;
+    }
 }

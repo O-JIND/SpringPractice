@@ -44,7 +44,7 @@ public class CartController {
 
 
     @PostMapping("/insert")
-    public ResponseEntity<String> addToCart(@RequestBody CartProductDto dto){
+    public ResponseEntity<String> addToCart(@RequestBody CartProductDto dto) {
         //member,product의 유효성 검사
         Optional<Member> memberOptional = memberService.findMemberById(dto.getMemberId());
         Optional<Product> productOptional = productService.findproductById(dto.getProductId());
@@ -52,33 +52,34 @@ public class CartController {
         // 중복된 Product 확인 및 등록 불가 RespondEntity 기능
 
         //member,product의 객체 정보 가져오기
-        if(memberOptional.isEmpty()||productOptional.isEmpty()){//
+        if (memberOptional.isEmpty() || productOptional.isEmpty()) {//
             return ResponseEntity.badRequest().body("회원 또는 상품 정보가 올바르지 않습니다.");
         }
         Member member = memberOptional.get();
         Product product = productOptional.get();
         //stock 유효성 검사
-        if(product.getStock()<dto.getQuantity()){
+        if (product.getStock() < dto.getQuantity()) {
             return ResponseEntity.badRequest().body("재고 수량이 부족합니다.");
         }
 
         //Cart 조회 및 신규 작성
         Cart cart = cartService.findByMember(member);
-        if(cart == null){
+        if (cart == null) {
             Cart newcart = new Cart();
             newcart.setMember(member);//고객이 카트를 집어온 행위와 유사
-            cart =cartService.saveCart(newcart);//database 에 저장
+            cart = cartService.saveCart(newcart);//database 에 저장
         }
 
         CartProduct existingCartProduct = null;
-        for (CartProduct cp : cart.getCartProducts()) {
-            // 주의) Long 타입은 참조 자료형이르로 == 대신 equals() 메소드를 사용해야 합니다.
-            if (cp.getProduct().getId().equals(product.getId())) {
-                existingCartProduct = cp;
-                break;
+        if (cart.getCartProducts() != null) {
+            for (CartProduct cp : cart.getCartProducts()) {
+                // 주의) Long 타입은 참조 자료형이르로 == 대신 equals() 메소드를 사용해야 합니다.
+                if (cp.getProduct().getId().equals(product.getId())) {
+                    existingCartProduct = cp;
+                    break;
+                }
             }
         }
-
         if (existingCartProduct != null) { // 기존 상품이면 수량 누적
             existingCartProduct.setQuantity(existingCartProduct.getQuantity() + dto.getQuantity());
             cartproductService.saveCartProduct(existingCartProduct);
@@ -94,36 +95,37 @@ public class CartController {
         return ResponseEntity.ok("요청하신 상품이 장바구니에 추가되었습니다.");
     }
 
-//    특정 사용자의 카트 상품을 조회한다.
+    //    특정 사용자의 카트 상품을 조회한다.
     @GetMapping("/list/{member_id}")
-    public ResponseEntity<List<CartProductResponseDto>> getCartProducts(@PathVariable Long member_id){
+    public ResponseEntity<List<CartProductResponseDto>> getCartProducts(@PathVariable Long member_id) {
         Optional<Member> memberOption = memberService.findMemberById(member_id);
 
-        if(memberOption.isEmpty()){
+        if (memberOption.isEmpty()) {
             return ResponseEntity.badRequest().build();
         }
 
         Member member = memberOption.get();
         Cart cart = cartService.findByMember(member);
 
-        if(cart == null){
+        if (cart == null) {
             cart = new Cart();
         }
         //과거에 내가 장바구니에 추가한 내역을 의미하는 컬렉션
         List<CartProductResponseDto> cartProducts = new ArrayList<>();
-        for(CartProduct cp : cart.getCartProducts()){
+        for (CartProduct cp : cart.getCartProducts()) {
             cartProducts.add(new CartProductResponseDto(cp));
         }
 
-        System.out.println("카트 상품 개수"+cartProducts.size());
+        System.out.println("카트 상품 개수" + cartProducts.size());
         return ResponseEntity.ok(cartProducts);
     }
+
     @PatchMapping("/edit/{cartProductId}")
     public ResponseEntity<String> quantitySet(
             @PathVariable Long cartProductId,
-            @RequestParam(required = false) Integer quantity){
-        String message=null;
-        if(quantity==null){
+            @RequestParam(required = false) Integer quantity) {
+        String message = null;
+        if (quantity == null) {
             message = "Cart product is At least over one product";
             return ResponseEntity.badRequest().body(message);
         }
@@ -133,24 +135,24 @@ public class CartController {
 
         cartproductService.saveCP(cartProduct);
 
-        message="Update Complete";
+        message = "Update Complete";
         return ResponseEntity.ok(message);
 
     }
 
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<String> deleteCartProduct(@PathVariable Long id){
-        System.out.println(id+"---------------------------------------------------------");
-        try{
+    public ResponseEntity<String> deleteCartProduct(@PathVariable Long id) {
+        System.out.println(id + "---------------------------------------------------------");
+        try {
             boolean isDeleted = cartService.deleteCartProductById(id);
-            if(isDeleted){
+            if (isDeleted) {
                 return ResponseEntity.ok().body("Delete Complete");
-            }else {
+            } else {
                 return ResponseEntity.badRequest().body("Delete Failed");
             }
 
-        }catch (Exception e) {
+        } catch (Exception e) {
             System.out.println(e.getMessage());
             return ResponseEntity.internalServerError().body("Error occurred : " + e.getMessage());
         }
