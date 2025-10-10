@@ -12,6 +12,6 @@ public interface ProductsRepository extends JpaRepository<Product, Long> {
 
 
     // image 칼럼에 특정 문자열이 포함된 데이터를 조회합니다.
-    // 데이터 베잇이 like 키워드와 유사
+    // 데이터 베이스의 like 키워드와 유사
     List<Product> findByImageContaining(String keyward);
 }

@@ -4,6 +4,10 @@ import com.cofee.entitiy.Product;
 import com.cofee.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,10 +30,28 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
+//    /*
+//    @GetMapping("/list")
+//    public List<Product> product() {
+//        return this.productService.getProductList();
+//    }
+//
+//    */
+
     @GetMapping("/list")
-    public List<Product> product() {
-        return this.productService.getProductList();
+    public ResponseEntity<Page<Product>> listPaging(
+            @RequestParam(defaultValue = "0") int pageNumber,
+            @RequestParam(defaultValue = "8") int pageSize
+    ) {//use Paging to list up
+        System.out.println("pageNumber : " + pageNumber + ", pageSize : " + pageSize);
+
+        //현재 페이지 : pageNumber , 페이지 당 보여줄 갯수 : pageSize
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "id"));
+        Page<Product> productPage = productService.listProducts(pageable);
+
+        return ResponseEntity.ok(productPage);
     }
+
 
     @GetMapping("/Update/{id}")
     public ResponseEntity<Product> productById(@PathVariable Long id) {
@@ -158,5 +180,7 @@ public class ProductController {
     public List<Product> getBigsizeProducts(@RequestParam(required = false) String filter) {
         return productService.getProductsByFilter(filter);
     }
+
+
 }
 
