@@ -1,7 +1,7 @@
 package com.cofee.constant;
 
 public enum Category {
-    BREAD("빵"),BEVERAGE("음료"),CAKE("케이크");
+    ALL("전체"), BREAD("빵"), BEVERAGE("음료"), CAKE("케이크");
 
     private String description;
 
