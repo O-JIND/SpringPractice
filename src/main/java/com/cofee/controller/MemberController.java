@@ -23,7 +23,7 @@ public class MemberController {
     private final MemberService memberService;
 
     @PostMapping("/signup")
-    public ResponseEntity<?> signup(@Valid @RequestBody Member bean, BindingResult bR){
+    public ResponseEntity<?> signup(@Valid @RequestBody Member bean, BindingResult bR) {
         //ResponseEntity : http 응답코드나 메세지를 표현하기 위한 클래스
         //Json JavaScript Object Notation
         //@RequestBody : json 형태의 문자열을 자바의 객체 타입으로 변환
@@ -36,28 +36,29 @@ public class MemberController {
         System.out.println("유효성 오류 개수");
         System.out.println(bR.getFieldErrorCount());
         //Field는 각각의 변수
-        if(bR.hasErrors()) {
+        if (bR.hasErrors()) {
             //Map<column_name,error_message>
             Map<String, String> errors = new HashMap<>();
             for (FieldError err : bR.getFieldErrors()) {
                 errors.put(err.getField(), err.getDefaultMessage());
 
-            }for (String s : errors.values()) {
+            }
+            for (String s : errors.values()) {
                 System.out.println(s);
             }
             return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
         }
 
-        if(member != null){//이미 존재하는 email
-            return new ResponseEntity<>(Map.of("email","이미 존재하는 이메일 주소입니다."), HttpStatus.BAD_REQUEST);
-        }else{
+        if (member != null) {//이미 존재하는 email
+            return new ResponseEntity<>(Map.of("email", "이미 존재하는 이메일 주소입니다."), HttpStatus.BAD_REQUEST);
+        } else {
             memberService.insert(bean);
-            return new ResponseEntity<>("회원 가입 성공",HttpStatus.OK);
+            return new ResponseEntity<>("회원 가입 성공", HttpStatus.OK);
         }
 
 
     }
-
+/*
     @PostMapping("/login")
     public ResponseEntity<Map<String, Object>> login(@RequestBody Member bean){
 
@@ -86,5 +87,7 @@ public class MemberController {
         }
 
     }
+*/
+
 
 }
