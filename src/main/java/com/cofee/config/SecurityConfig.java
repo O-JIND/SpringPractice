@@ -23,10 +23,10 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         // 명시된 항목들은 로그인이 필요 없이 무조건 접속 허용
         String[] permitAllowed = {
-                "/", "/member/signup", "/member/login", "/products/list", "/cart/**", "/Orders/**", "/fruit/**",
+                "/", "/member/signup", "/member/login", "/products/list", "/cart/**", "/Order/**", "/fruit/**",
                 "/element/**", "/images/", "/products", "/eleList/**"
         };
-        String[] needAuthenticated = {"/products/specific/"};
+        String[] needAuthenticated = {"/products/specific/", "/products/insert", "/products/modify/**"};
 
         //HttpSecurity : 개발자가 코드를 직접 작성하여 보안 정책을 설정 할 수 있도록 도와주는 객체
         http
@@ -35,6 +35,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(permitAllowed).permitAll()
                         .requestMatchers(needAuthenticated).authenticated()//그 외 경로는 로그인이 필요
+                        .anyRequest().authenticated()
                 );
 
         // successHandler는 이 문서 하단에 정의
@@ -67,6 +68,13 @@ public class SecurityConfig {
         // 클라이언트가 서버에 요청시 모든 요청 정보를 허용한다.
         configuration.setAllowCredentials(true); // 쿠키, 세션 인증 정보 허용
 
+        /*
+           In BackEnd ; react 에서 쿠키 , 세션 정보를 넘기면 , 허용하기위한 옵션
+           In FrontEnd ; axios를 사용할 때 반드시 withCredentials : true 옵션을 명시하도록 할것
+           인증 성공 시 백엔드가 프론트 엔드에 JSESSIONID 라는 이름의 데이터를 넘겨주고,
+           쿠기 형태로 저장한다.
+
+         */
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
@@ -82,4 +90,6 @@ public class SecurityConfig {
     public CustomLoginSuccessHandler handler() {
         return new CustomLoginSuccessHandler();
     }
+
+
 }

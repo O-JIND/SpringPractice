@@ -6,6 +6,7 @@ import com.cofee.entitiy.Product;
 import com.cofee.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -95,8 +96,11 @@ public class ProductController {
             } else {
                 return ResponseEntity.badRequest().body("Delete Failure " + id + "is not found");
             }
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body("Error occurred : " + e.getMessage());
+        } catch (DataIntegrityViolationException e) {
+            String msg = "this product is already contain in Cart or OrderList  ";
+            return ResponseEntity.badRequest().body(msg);
+        } catch (Exception ex) {
+            return ResponseEntity.internalServerError().body("Error occurred : " + ex.getMessage());
         }
     }
 
